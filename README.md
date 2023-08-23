@@ -16,7 +16,7 @@ This issue appears both while using events and `execute()`, I had hoped that usi
 
 ## This repo
 
-This repo was made as a minimal reproduction of this bug. It includes a Python script _(`__print_number.py`)_ which prints numbers until 250,000 numbers have been printed, it starts by printing `started` and ends by printing `done`.
+This repo was made as a minimal reproduction of this bug. It includes a Python script _(`__print_numbers.py`)_ which prints numbers until 250,000 numbers have been printed, it starts by printing `started` and ends by printing `done`.
 
 The amount of numbers the Python script prints can be changed in the script, usually 20,000 is enough for the bug to appear, but I made the default 250,000 since it was still bearable and should be more than enough for the bug to appear.
 

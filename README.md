@@ -23,3 +23,7 @@ The amount of numbers the Python script prints can be changed in the script, usu
 I recommend running it using `npm run tauri dev`, this is mainly due to the automatic finding of the Python file, since it looks for it at the current execution path _(feel free to change this)_. Running it as a built binary also works, but make sure that the `__print_numbers.py` file is in the same directory.
 
 > I haven't tried running this on anything other than Windows 11.
+
+---
+
+**Submitted issue on the tauri repo:** [#7684](https://github.com/tauri-apps/tauri/issues/7684)

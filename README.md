@@ -24,6 +24,18 @@ I recommend running it using `npm run tauri dev`, this is mainly due to the auto
 
 > I haven't tried running this on anything other than Windows 11.
 
+**Install dependencies:**
+
+```bash
+npm install
+```
+
+**Running:**
+
+```bash
+npm run tauri dev
+```
+
 ---
 
 **Submitted issue on the tauri repo:** [#7684](https://github.com/tauri-apps/tauri/issues/7684)

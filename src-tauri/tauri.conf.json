@@ -37,6 +37,16 @@
         ]
       }
     },
+    "windows": [
+      {
+        "title": "tauri-shell-bug",
+        "width": 800,
+        "height": 600
+      }
+    ],
+    "security": {
+      "csp": null
+    },
     "bundle": {
       "active": true,
       "targets": "all",
@@ -48,18 +58,6 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ]
-    },
-    "security": {
-      "csp": null
-    },
-    "windows": [
-      {
-        "fullscreen": false,
-        "resizable": true,
-        "title": "tauri-shell-bug",
-        "width": 800,
-        "height": 600
-      }
-    ]
+    }
   }
 }

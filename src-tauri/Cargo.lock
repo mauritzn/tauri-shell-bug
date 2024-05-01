@@ -2773,6 +2773,7 @@ dependencies = [
 name = "tauri-shell-bug"
 version = "0.0.0"
 dependencies = [
+ "regex",
  "serde",
  "serde_json",
  "tauri",

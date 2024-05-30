@@ -2,13 +2,14 @@
  * @file This Class makes it easier to run performance testing
  * @author Mauritz Nilsson - https://github.com/mauritzn
  * @license MIT
- * @version 0.0.1
+ * @version 0.0.2
  *
  * I got tired of creating a bunch of timing variables so instead I created a class for handling it all.
  * A lot of things could probably be improved, but the basics work.
  */
 
 export class Timings<ID extends string> {
+  public resetOnStart: boolean = true;
   private _data: { id: ID; start: number; end: number }[] = [];
 
   constructor(...ids: ID[]) {
@@ -108,13 +109,13 @@ export class Timings<ID extends string> {
 
     if (data.start <= 0) {
       console.warn(
-        `Cannot get result for timing with ID: ${data.id}, it has not be started!`
+        `Cannot get result for timing with ID: ${data.id}, start() has not been called!`
       );
       return `NOT_STARTED ms`;
     }
     if (data.end <= 0) {
       console.warn(
-        `Cannot get result for timing with ID: ${data.id}, it has not be ended!`
+        `Cannot get result for timing with ID: ${data.id}, end() has not been called!`
       );
       return `NOT_ENDED ms`;
     }
@@ -128,13 +129,13 @@ export class Timings<ID extends string> {
     for (const data of this._data) {
       if (data.start <= 0) {
         console.warn(
-          `Cannot get result for timing with ID: ${data.id}, it has not be started!`
+          `Cannot get result for timing with ID: ${data.id}, start() has not been called!`
         );
         continue;
       }
       if (data.end <= 0) {
         console.warn(
-          `Cannot get result for timing with ID: ${data.id}, it has not be ended!`
+          `Cannot get result for timing with ID: ${data.id}, end() has not been called!`
         );
         continue;
       }
@@ -153,6 +154,7 @@ export class Timings<ID extends string> {
       const index = this.getIndex(id);
       if (index >= 0) {
         this._data[index].start = perfNow;
+        this._data[index].end = this.resetOnStart ? 0 : this._data[index].end;
       }
     }
   }
@@ -161,6 +163,7 @@ export class Timings<ID extends string> {
     const perfNow = performance.now();
     this._data = this._data.map((data) => {
       data.start = perfNow;
+      data.end = this.resetOnStart ? 0 : data.end;
       return data;
     });
   }

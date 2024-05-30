@@ -24,12 +24,12 @@ async function findPythonScript(): Promise<string> {
 
 async function invokeProcess(pythonScriptPath: string) {
   console.log("Running python script (with invoke workaround)...");
-  timings.reset("invoke");
-  timings.start("invoke");
 
   try {
+    timings.start("invoke");
     const output = await invoke("print_py_numbers", { pythonScriptPath });
     timings.end("invoke");
+
     console.log(output);
     console.log(
       `Done (lines: ${(
@@ -38,15 +38,13 @@ async function invokeProcess(pythonScriptPath: string) {
     );
   } catch (err) {
     console.error(`command error: "${err}"`);
-    timings.end("invoke");
   }
 }
 
 async function executeProcess(pythonScriptPath: string) {
   console.log("Running python script (with JS Command execute)...");
-  timings.reset("execute");
-  timings.start("execute");
 
+  timings.start("execute");
   let process = await new Command("python-test", [pythonScriptPath]).execute();
   timings.end("execute");
 
@@ -66,9 +64,7 @@ function eventProcess(pythonScriptPath: string) {
     let process = new Command("python-test", [pythonScriptPath]);
     let outputLines: string[] = [];
 
-    timings.reset("events");
     timings.start("events");
-
     process.on("close", (data: any) => {
       const outputString = outputLines.join("\n");
       timings.end("events");

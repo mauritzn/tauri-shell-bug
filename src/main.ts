@@ -1,7 +1,10 @@
-import { Command } from "@tauri-apps/api/shell";
 import { exists } from "@tauri-apps/api/fs";
 import { join, resolve, dirname } from "@tauri-apps/api/path";
 import { invoke } from "@tauri-apps/api";
+import { Timings } from "./Timings";
+
+const { Command } = (window.__TAURI__ as any).shell;
+const timings = new Timings("invoke", "execute", "events");
 
 async function findPythonScript(): Promise<string> {
   let currentFolder = await resolve(".");
@@ -21,50 +24,86 @@ async function findPythonScript(): Promise<string> {
 
 async function invokeProcess(pythonScriptPath: string) {
   console.log("Running python script (with invoke workaround)...");
+  timings.reset("invoke");
+  timings.start("invoke");
 
   try {
     const output = await invoke("print_py_numbers", { pythonScriptPath });
+    timings.end("invoke");
     console.log(output);
-    console.log("Done...");
+    console.log(
+      `Done (lines: ${(
+        String(output).trim().split("\n").length - 2
+      ).toLocaleString()}) [Took: ${timings.getResult("invoke")}]...`
+    );
   } catch (err) {
     console.error(`command error: "${err}"`);
+    timings.end("invoke");
   }
 }
 
 async function executeProcess(pythonScriptPath: string) {
   console.log("Running python script (with JS Command execute)...");
+  timings.reset("execute");
+  timings.start("execute");
 
   let process = await new Command("python-test", [pythonScriptPath]).execute();
+  timings.end("execute");
 
   console.log(process.stdout);
-  console.log("Done...");
+  console.log(
+    `Done (lines: ${(
+      String(process.stdout)
+        .trim()
+        .replace(/[\n]{2,}/gi, "\n")
+        .split("\n").length - 2
+    ).toLocaleString()}) [Took: ${timings.getResult("execute")}]...`
+  );
 }
 
-async function eventProcess(pythonScriptPath: string) {
-  let process = new Command("python-test", [pythonScriptPath]);
+function eventProcess(pythonScriptPath: string) {
+  return new Promise(async (resolve: (value: void) => void, reject) => {
+    let process = new Command("python-test", [pythonScriptPath]);
+    let outputLines: string[] = [];
 
-  process.on("close", (data) => {
-    console.log(
-      `command finished with code ${data.code} and signal ${data.signal}`,
-      data
-    );
+    timings.reset("events");
+    timings.start("events");
+
+    process.on("close", (data: any) => {
+      const outputString = outputLines.join("\n");
+      timings.end("events");
+      console.log(
+        `command finished with code ${data.code} and signal ${data.signal}`,
+        data
+      );
+      console.log(outputString);
+      console.log(
+        `Done (lines: ${(
+          outputLines.length - 2
+        ).toLocaleString()}) [Took: ${timings.getResult("events")}]...`
+      );
+
+      return resolve();
+    });
+
+    process.on("error", (error: any) => {
+      console.error(`command error: "${error}"`);
+      return reject(error);
+    });
+
+    process.stdout.on("data", (line: string) => {
+      outputLines.push(line.trim());
+      //console.log(line);
+    });
+
+    process.stderr.on("data", (line: string) => {
+      console.log(`command stderr: "${line}"`);
+    });
+
+    console.log("Running python script (with JS Command events)...");
+    const child = await process.spawn();
+    console.log("pid:", child.pid);
   });
-
-  process.on("error", (error) => {
-    console.error(`command error: "${error}"`);
-  });
-
-  process.stdout.on("data", (line) => {
-    console.log(line);
-  });
-
-  process.stderr.on("data", (line) => {
-    console.log(`command stderr: "${line}"`);
-  });
-
-  console.log("Running python script (with JS Command events)...");
-  const child = await process.spawn();
-  console.log("pid:", child.pid);
 }
 
 window.addEventListener("DOMContentLoaded", () => {
